@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-configmap
+data:
+  APP_ENV: production
+  DATABASE_URL: "mysql://user:password@db.example.com:3306/mydatabase"
+  LOG_LEVEL: info
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  containers:
+  - name: my-container
+    image: nginx:latest
+    envFrom:
+    - configMapRef:
+        name: example-configmap

@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: examples
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+      <title>Node and Pod Information</title>
+      <style>
+        body {
+          background-color: #<background-color>;
+          color: #ffffff;
+          font-family: Arial, sans-serif;
+          text-align: center;
+          margin-top: 100px;
+        }
+        h1 {
+          font-size: 2em;
+        }
+        h2 {
+          font-size: 1.5em;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Node Name: <span id="node-name"></span></h1>
+      <h2>Pod Name: <span id="pod-name"></span></h2>
+
+      <script>
+        // Fetch node name from environment variable
+        const nodeName = "${NODE_NAME}";
+
+        // Fetch pod name from environment variable
+        const podName = "${POD_NAME}";
+
+        // Set the text content of the HTML elements
+        document.getElementById('node-name').innerText = nodeName;
+        document.getElementById('pod-name').innerText = podName;
+
+        // Calculate a background color based on the node name
+        const backgroundColor = stringToColor(nodeName);
+
+        // Set the background color of the body
+        document.body.style.backgroundColor = backgroundColor;
+
+        // Calculate contrast and set text color accordingly
+        const textColor = getContrastColor(backgroundColor);
+        document.body.style.color = textColor;
+
+        // Function to convert a string to a color
+        function stringToColor(str) {
+          let hash = 0;
+          for (let i = str.length - 1; i >= 0; i--) {
+            const charCode = str.charCodeAt(i);
+            hash = (charCode + (hash << 5) - hash) | 0; // Use bitwise OR to ensure a 32-bit signed integer
+          }
+
+          const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+          return '#' + '00000'.substring(0, 6 - c.length) + c;
+        }
+
+
+
+
+        // Function to calculate contrast color
+        function getContrastColor(hexColor) {
+          const r = parseInt(hexColor.slice(1, 3), 16);
+          const g = parseInt(hexColor.slice(3, 5), 16);
+          const b = parseInt(hexColor.slice(5, 7), 16);
+
+          const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+          return brightness > 128 ? '#000000' : '#ffffff';
+        }
+      </script>
+    </body>
+    </html>
+
